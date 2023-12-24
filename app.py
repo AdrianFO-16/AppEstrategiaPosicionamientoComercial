@@ -1,8 +1,9 @@
 import streamlit as st
 from utils import *
-BASE_URL = 'https://docs.google.com/spreadsheets/d/1TWvLP6ixEKneycy6uI28nJZ4i1Ho2UG8cVXKT9Wxluk/edit#gid=141709839'
+
 st.session_state.EMAIL_COL = 'Dirección de correo electrónico'
 st.session_state.DATE_COL = "Marca temporal"
+st.session_state.URL = ''
 
 def general():
     data = get_data()
@@ -24,12 +25,12 @@ def individual():
 def configuracion():
     st.session_state.plot = None
     st.info('Recuerda hacer la liga pública y con acceso a cualquier persona', icon = "ℹ️")
-    url = st.text_input('Liga a la hoja de sheets', BASE_URL)
+    st.session_state.URL = st.text_input('Liga a la hoja de sheets', st.session_state.URL)
 
-    if not url:
+    if not st.session_state.URL:
         return
     try:
-        preview = fetch_data(url)
+        preview = fetch_data(st.session_state.URL)
     except:
         st.error("Error cargando datos, revisa que el Url es valido")
         return
@@ -50,32 +51,30 @@ st.set_page_config(layout="wide")
 # Streamlit app
 def main():
 
-    page = st.sidebar.selectbox("Página", ["Configuración", 'General', "Individual"])
-
     HEADER = st.container()
-
     with HEADER:
         st.title('Diagnóstico de la Estrategia Posicionamiento Comercial')
-
     st.divider()
+
 
     BODY = st.container()
     with BODY:
-        _, col, _ = st.columns([0.05, 0.7, 0.05], gap = "small")
-        try:
-            match page:
-                case "General":
-                    general()
-                case "Individual":
-                    individual()
-                case "Configuración":
+        conf, gen, ind = st.tabs(["Configuración", 'General', "Individual"])
+        _, col, _ = st.columns([0.1, 1, 0.1], gap = "small")
+        with col:
+            try:
+                with conf:
                     configuracion()
-        except UserWarning:
-            return
-        
-        plot = st.session_state.get('plot')
-        if plot:
-            st.plotly_chart(plot)
+                with gen:
+                    general()
+                with ind:
+                    individual()
+            except UserWarning:
+                return
+            
+            plot = st.session_state.get('plot')
+            if plot:
+                st.plotly_chart(plot)
 
 if __name__ == '__main__':
     main()
