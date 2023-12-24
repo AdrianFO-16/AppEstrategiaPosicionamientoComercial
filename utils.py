@@ -5,11 +5,22 @@ import pandas as pd
 
 
 def check_url(url):
-    split = url.split('/edit#gid=')
-    page_id = split[-1]
-    doc_id = split[0].split('/')[-1]
-    return doc_id, page_id
- 
+
+    # Define a regular expression pattern
+    pattern = r"https://docs\.google\.com/spreadsheets/d/(\w+)/edit(?:\?.*)?#gid=(\w+)"
+
+    # Use re.search to find matches in the URL
+    match = re.search(pattern, url)
+
+    # Check if there is a match
+    if match:
+        # Extract placeholders from the matched groups
+        doc_id = match.group(1)
+        page_id = match.group(2)
+        return doc_id, page_id
+    
+    return '',''
+    
 def confirm_data(preview):
     st.session_state.data = preview
     st.balloons()
