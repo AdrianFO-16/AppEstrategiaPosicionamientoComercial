@@ -1,10 +1,20 @@
 import streamlit as st
 from utils import *
 
+st.set_page_config(layout="wide", page_title = "Diagnóstico de la Estrategia de Posicionamiento Comercial", page_icon = "📊")
 st.session_state.EMAIL_COL = 'Dirección de correo electrónico'
 st.session_state.DATE_COL = "Marca temporal"
 st.session_state.URL = ''
 
+def show_plot(func):
+    def wrapper(*args, **kwargs):
+        func(*args, **kwargs)
+        plot = st.session_state.get('plot')
+        if plot:
+            st.plotly_chart(plot)
+    return wrapper
+
+@show_plot
 def general():
     data = get_data()
     row = data.mean(axis = 0)
@@ -12,7 +22,7 @@ def general():
     fig = radial_plot(row, name)
     st.session_state.plot = fig
 
-
+@show_plot
 def individual():
     data = get_data()
     correo = st.selectbox("Correo", data.index)
@@ -47,13 +57,12 @@ def configuracion():
 
 
 
-st.set_page_config(layout="wide")
 # Streamlit app
 def main():
 
     HEADER = st.container()
     with HEADER:
-        st.title('Diagnóstico de la Estrategia Posicionamiento Comercial')
+        st.title('Diagnóstico de la Estrategia de Posicionamiento Comercial')
     st.divider()
 
 
@@ -63,18 +72,14 @@ def main():
         _, col, _ = st.columns([0.1, 1, 0.1], gap = "small")
         with col:
             try:
-                with conf:
-                    configuracion()
                 with gen:
                     general()
                 with ind:
                     individual()
+                with conf:
+                    configuracion()
             except UserWarning:
                 return
             
-            plot = st.session_state.get('plot')
-            if plot:
-                st.plotly_chart(plot)
-
 if __name__ == '__main__':
     main()
