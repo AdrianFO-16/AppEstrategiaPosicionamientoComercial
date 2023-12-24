@@ -26,11 +26,11 @@ def get_data():
     try:
         if len(data) == 0:
             st.warning('Error, no se han cargado los datos')
-            raise UserWarning()
+            return None, None
     except TypeError:
         st.warning('Error, no se han cargado los datos')
-        raise UserWarning()
-    return data
+        return None, None
+    return True, data
 
 def fetch_data(url):
     return pd.read_csv(parse_url(url))
@@ -64,7 +64,9 @@ def date_filter(data, col, date):
 #https://community.plotly.com/t/polar-chart-fill-percent-of-aea-like-a-pie-chart/15984
 def radial_plot(row, name):
 
-    data = get_data()
+    status, data = get_data()
+    if not status:
+        return
     
     fig = go.Figure()
 

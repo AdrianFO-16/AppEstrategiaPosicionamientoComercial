@@ -16,7 +16,9 @@ def show_plot(func):
 
 @show_plot
 def general():
-    data = get_data()
+    status, data = get_data()
+    if not status:
+        return
     row = data.mean(axis = 0)
     name = "General"
     fig = radial_plot(row, name)
@@ -24,7 +26,9 @@ def general():
 
 @show_plot
 def individual():
-    data = get_data()
+    status, data = get_data()
+    if not status:
+        return
     correo = st.selectbox("Correo", data.index)
     row = data.loc[correo]
     name = row.name
@@ -71,15 +75,13 @@ def main():
         conf, gen, ind = st.tabs(["Configuración", 'General', "Individual"])
         _, col, _ = st.columns([0.1, 1, 0.1], gap = "small")
         with col:
-            try:
-                with gen:
-                    general()
-                with ind:
-                    individual()
-                with conf:
-                    configuracion()
-            except UserWarning:
-                return
+            with gen:
+                general()
+            with ind:
+                individual()
+            with conf:
+                configuracion()
+
             
 if __name__ == '__main__':
     main()
