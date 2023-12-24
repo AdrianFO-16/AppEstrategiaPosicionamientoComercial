@@ -54,22 +54,26 @@ def process_data(data):
     return data
 
 
-def load_data(data, date):
-    try:
-        data = date_filter(data, st.session_state.DATE_COL, date)
+def load_data(data, from_date, to_date):
+    # try:
+        if from_date > to_date:
+            st.error(f"La fecha de inicio {from_date} no puede ser después que la de fin {to_date}")
+            return
+        data = date_filter(data, st.session_state.DATE_COL, from_date, to_date)
         if len(data) == 0:
-            st.error(f"No hay ninguna fila a partir de la fecha: {date}")
+            st.error(f"No hay ninguna fila a entre: {from_date} y {to_date}")
             return
         data = process_data(data)
-    except Exception as e:
-        st.error("Error cargando los datos, asegurate que es la tabla correcta")
-        return
-    st.success(f'{len(data)} filas cargadas correctamente')
-    st.session_state.data = data.groupby(st.session_state.EMAIL_COL).mean()
+    # except Exception as e:
+    #     st.error("Error cargando los datos, asegurate que es la tabla correcta")
+    #     return
+        st.success(f'{len(data)} filas cargadas correctamente')
+        st.session_state.data = data.groupby(st.session_state.EMAIL_COL).mean()
 
 
-def date_filter(data, col, date):
-    return data[pd.to_datetime(data[col]) >= pd.to_datetime(date)]
+def date_filter(data, col, from_date, to_date):
+    col_date = pd.to_datetime(data[col], dayfirst=True).apply(lambda x: x.date())
+    return data[(col_date >= from_date) & (col_date <= to_date)]
 
 
 #https://community.plotly.com/t/polar-chart-fill-percent-of-aea-like-a-pie-chart/15984

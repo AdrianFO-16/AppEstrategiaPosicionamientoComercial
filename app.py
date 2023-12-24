@@ -6,6 +6,9 @@ st.session_state.EMAIL_COL = 'Dirección de correo electrónico'
 st.session_state.DATE_COL = "Marca temporal"
 st.session_state.URL = ''
 
+with open('./version.txt', 'r') as file:
+    VERSION = file.read()
+
 def show_plot(func):
     def wrapper(*args, **kwargs):
         func(*args, **kwargs)
@@ -51,8 +54,10 @@ def configuracion():
     
     st.dataframe(preview)
     st.info('Si no es la tabla que esperabas, genera de nuevo el link pero teniendo abierta la hoja de sheets correcta', icon = "ℹ️")
-    date = st.date_input("Incluir respuestas a partir de:")
-    st.button("Confirmar", on_click= load_data, args = [preview, date])
+    col1, col2, _ = st.columns([0.25, 0.25, 1])
+    from_date = col1.date_input("Incluir respuestas desde:")
+    to_date = col2.date_input("hasta:")
+    st.button("Confirmar", on_click= load_data, args = [preview, from_date, to_date])
 
     adv = st.checkbox('Configuracion Avanzada')
     if adv:
@@ -63,6 +68,22 @@ def configuracion():
 
 # Streamlit app
 def main():
+
+
+    footer=f"""<style>
+.footer {{
+left: 0;
+bottom: 0;
+width: 100%;
+background-color: white;
+color: black;
+text-align: center;
+}}
+</style>
+<div class="footer">
+<p style="float:right">Version {VERSION}</p>
+</div>
+"""
 
     HEADER = st.container()
     with HEADER:
@@ -81,6 +102,7 @@ def main():
                 individual()
             with conf:
                 configuracion()
+    st.markdown(footer,unsafe_allow_html=True)
 
             
 if __name__ == '__main__':
